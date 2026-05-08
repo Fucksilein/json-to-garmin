@@ -1,0 +1,345 @@
+"""Workout (generisches Modell) → Garmin Connect API.
+
+Verwendet die Pydantic-Modelle aus `garminconnect.workout` für Serialisierung.
+Korrigierte API-IDs wo die Library falsche Werte hat (Stand 2026-04-07):
+
+- ConditionType.DISTANCE: Library 1, API 3
+- TargetType.SPEED → pace.zone: ID 5/6 abhängig von Endpoint, hier 5
+
+Power und HR nutzen die Library-Werte direkt.
+"""
+
+from __future__ import annotations
+
+import json
+
+from garminconnect.workout import (
+    ConditionType,
+    CyclingWorkout,
+    ExecutableStep,
+    FitnessEquipmentWorkout,
+    RepeatGroup,
+    RunningWorkout,
+    StepType,
+    SwimmingWorkout,
+    TargetType,
+    WorkoutSegment,
+)
+
+from json_to_garmin.model import Repeat, Sport, Step, Target, Workout
+
+# --- Korrigierte API-IDs ----------------------------------------------------
+
+CONDITION_DISTANCE_ID = 3   # Library: 1
+TARGET_PACE_ZONE_ID = 5     # für key "pace.zone"
+TARGET_POWER_ID = TargetType.POWER
+TARGET_HR_ID = TargetType.HEART_RATE
+TARGET_NO_TARGET_ID = TargetType.NO_TARGET
+
+# --- Step-Type Dicts --------------------------------------------------------
+
+_STEP_KIND_MAP = {
+    "warmup": (StepType.WARMUP, "warmup"),
+    "work": (StepType.INTERVAL, "interval"),
+    "recover": (StepType.RECOVERY, "recovery"),
+    "rest": (StepType.REST, "rest"),
+    "cooldown": (StepType.COOLDOWN, "cooldown"),
+    "other": (StepType.INTERVAL, "interval"),
+}
+
+
+def _step_type_dict(kind: str) -> dict:
+    step_id, key = _STEP_KIND_MAP[kind]
+    return {"stepTypeId": step_id, "stepTypeKey": key, "displayOrder": step_id}
+
+
+_REPEAT_TYPE = {
+    "stepTypeId": StepType.REPEAT,
+    "stepTypeKey": "repeat",
+    "displayOrder": StepType.REPEAT,
+}
+
+_NO_TARGET = {
+    "workoutTargetTypeId": TARGET_NO_TARGET_ID,
+    "workoutTargetTypeKey": "no.target",
+    "displayOrder": 1,
+}
+
+# --- Sport → Workout-Klasse + sportType -------------------------------------
+
+_SPORT_TO_WORKOUT_CLS = {
+    "run": RunningWorkout,
+    "bike": CyclingWorkout,
+    "swim": SwimmingWorkout,
+    "strength": FitnessEquipmentWorkout,
+    "other": FitnessEquipmentWorkout,
+}
+
+
+def _workout_cls_for(sport: Sport):
+    return _SPORT_TO_WORKOUT_CLS[sport]
+
+
+# --- End-Conditions ---------------------------------------------------------
+
+
+def _end_condition(end: str, value: float | None) -> tuple[dict, float | None]:
+    if end == "time":
+        return (
+            {
+                "conditionTypeId": ConditionType.TIME,
+                "conditionTypeKey": "time",
+                "displayOrder": 2,
+                "displayable": True,
+            },
+            float(value) if value is not None else None,
+        )
+    if end == "distance":
+        return (
+            {
+                "conditionTypeId": CONDITION_DISTANCE_ID,
+                "conditionTypeKey": "distance",
+                "displayOrder": 3,
+                "displayable": True,
+            },
+            float(value) if value is not None else None,
+        )
+    if end == "lap_button":
+        return (
+            {
+                "conditionTypeId": 1,
+                "conditionTypeKey": "lap.button",
+                "displayOrder": 1,
+                "displayable": True,
+            },
+            None,
+        )
+    if end == "calories":
+        return (
+            {
+                "conditionTypeId": ConditionType.CALORIES,
+                "conditionTypeKey": "calories",
+                "displayOrder": 4,
+                "displayable": True,
+            },
+            float(value) if value is not None else None,
+        )
+    raise ValueError(f"Unbekannte EndCondition: {end}")
+
+
+def _iterations_condition(n: int) -> tuple[dict, float]:
+    return (
+        {
+            "conditionTypeId": ConditionType.ITERATIONS,
+            "conditionTypeKey": "iterations",
+            "displayOrder": 7,
+            "displayable": False,
+        },
+        float(n),
+    )
+
+
+# --- Pace-Helper ------------------------------------------------------------
+
+
+def pace_to_ms(pace_str: str) -> float:
+    """'4:30' → m/s (1000 / (4.5 * 60) = 3.704)."""
+    parts = pace_str.split(":")
+    minutes = int(parts[0]) + int(parts[1]) / 60
+    return round(1000 / (minutes * 60), 7)
+
+
+# --- Target → Garmin-Dict ---------------------------------------------------
+
+
+def _target_dict(t: Target) -> dict:
+    if t.kind == "none":
+        return {
+            "targetType": _NO_TARGET,
+            "targetValueOne": None,
+            "targetValueTwo": None,
+            "zoneNumber": None,
+        }
+    if t.kind == "power":
+        return {
+            "targetType": {
+                "workoutTargetTypeId": TARGET_POWER_ID,
+                "workoutTargetTypeKey": "power.zone",
+                "displayOrder": TARGET_POWER_ID,
+            },
+            "targetValueOne": float(t.low) if t.low is not None else None,
+            "targetValueTwo": float(t.high) if t.high is not None else None,
+            "zoneNumber": None,
+        }
+    if t.kind == "power_zone":
+        return {
+            "targetType": {
+                "workoutTargetTypeId": TARGET_POWER_ID,
+                "workoutTargetTypeKey": "power.zone",
+                "displayOrder": TARGET_POWER_ID,
+            },
+            "targetValueOne": None,
+            "targetValueTwo": None,
+            "zoneNumber": t.zone,
+        }
+    if t.kind == "hr_zone":
+        return {
+            "targetType": {
+                "workoutTargetTypeId": TARGET_HR_ID,
+                "workoutTargetTypeKey": "heart.rate.zone",
+                "displayOrder": TARGET_HR_ID,
+            },
+            "targetValueOne": None,
+            "targetValueTwo": None,
+            "zoneNumber": t.zone,
+        }
+    if t.kind == "pace":
+        # low = schneller (höhere m/s), high = langsamer (niedrigere m/s)
+        low_ms = pace_to_ms(t.pace_low) if t.pace_low else None
+        high_ms = pace_to_ms(t.pace_high) if t.pace_high else None
+        return {
+            "targetType": {
+                "workoutTargetTypeId": TARGET_PACE_ZONE_ID,
+                "workoutTargetTypeKey": "pace.zone",
+                "displayOrder": TARGET_PACE_ZONE_ID,
+            },
+            "targetValueOne": low_ms,
+            "targetValueTwo": high_ms,
+            "zoneNumber": None,
+        }
+    if t.kind == "cadence":
+        return {
+            "targetType": {
+                "workoutTargetTypeId": TargetType.CADENCE,
+                "workoutTargetTypeKey": "cadence.zone",
+                "displayOrder": TargetType.CADENCE,
+            },
+            "targetValueOne": float(t.low) if t.low is not None else None,
+            "targetValueTwo": float(t.high) if t.high is not None else None,
+            "zoneNumber": t.zone,
+        }
+    if t.kind == "speed":
+        return {
+            "targetType": {
+                "workoutTargetTypeId": TargetType.SPEED,
+                "workoutTargetTypeKey": "speed.zone",
+                "displayOrder": TargetType.SPEED,
+            },
+            "targetValueOne": float(t.low) if t.low is not None else None,
+            "targetValueTwo": float(t.high) if t.high is not None else None,
+            "zoneNumber": t.zone,
+        }
+    raise ValueError(f"Unbekannter Target-Kind: {t.kind}")
+
+
+# --- Step-Konvertierung -----------------------------------------------------
+
+
+def _build_executable(step: Step, step_order: int) -> ExecutableStep:
+    cond, val = _end_condition(step.end, step.value)
+    target = _target_dict(step.target)
+    return ExecutableStep(
+        stepOrder=step_order,
+        stepType=_step_type_dict(step.kind),
+        endCondition=cond,
+        endConditionValue=val,
+        targetType=target["targetType"],
+        targetValueOne=target["targetValueOne"],
+        targetValueTwo=target["targetValueTwo"],
+        zoneNumber=target.get("zoneNumber"),
+        description=step.note,
+    )
+
+
+def _build_repeat(rep: Repeat, step_order: int) -> RepeatGroup:
+    children = _build_children(rep.steps)
+    cond, val = _iterations_condition(rep.iterations)
+    return RepeatGroup(
+        stepOrder=step_order,
+        stepType=_REPEAT_TYPE,
+        numberOfIterations=rep.iterations,
+        workoutSteps=children,
+        endCondition=cond,
+        endConditionValue=val,
+        childStepId=1,
+        smartRepeat=False,
+        skipLastRestStep=rep.skip_last_rest,
+    )
+
+
+def _build_children(steps: list) -> list:
+    out: list = []
+    order = 1
+    for s in steps:
+        if isinstance(s, Step):
+            out.append(_build_executable(s, order))
+        elif isinstance(s, Repeat):
+            out.append(_build_repeat(s, order))
+        else:
+            raise TypeError(f"Unerwarteter Step-Typ: {type(s)}")
+        order += 1
+    return out
+
+
+# --- Workout → API-Dict -----------------------------------------------------
+
+
+def to_garmin_dict(workout: Workout) -> dict:
+    """Übersetzt ein generisches Workout in das Garmin-API-Dict."""
+    cls = _workout_cls_for(workout.sport)
+    sport_type = cls.model_fields["sportType"].default_factory()
+    children = _build_children(workout.steps)
+
+    segment = WorkoutSegment(
+        segmentOrder=1,
+        sportType=sport_type,
+        workoutSteps=children,
+    )
+
+    api = cls(
+        workoutName=workout.name,
+        estimatedDurationInSecs=workout.estimated_duration_sec or 0,
+        workoutSegments=[segment],
+    )
+
+    result = api.to_dict()
+    if workout.estimated_distance_m is not None:
+        result["estimatedDistanceInMeters"] = workout.estimated_distance_m
+    if workout.description is not None:
+        result["description"] = workout.description
+    return result
+
+
+# --- Upload -----------------------------------------------------------------
+
+
+def upload_and_schedule(
+    workout: Workout | dict,
+    date_str: str | None = None,
+    *,
+    client=None,
+    dry_run: bool = False,
+) -> dict | None:
+    """Lädt das Workout hoch und plant es optional ein.
+
+    `client` muss `upload_workout(dict)` und `schedule_workout(id, date)` haben
+    (z. B. ein konfigurierter `garminconnect.Garmin`-Client).
+    """
+    payload = workout if isinstance(workout, dict) else to_garmin_dict(workout)
+
+    if dry_run:
+        print("=== DRY RUN – kein Upload ===")
+        print(json.dumps(payload, indent=2, ensure_ascii=False))
+        return None
+
+    if client is None:
+        raise ValueError("client erforderlich (oder dry_run=True)")
+
+    result = client.upload_workout(payload)
+    workout_id = result.get("workoutId")
+    print(f"Upload OK – workout_id: {workout_id}  name: {payload['workoutName']}")
+
+    if date_str:
+        sched = client.schedule_workout(workout_id, date_str)
+        print(f"Geplant für {date_str} (scheduleId: {sched.get('workoutScheduleId')})")
+    return result
