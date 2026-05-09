@@ -317,14 +317,14 @@ test = ["charset_normalizer (>=3.3.2,<4.0)", "cryptography (>=46.0.4,<47.0)", "h
 
 [[package]]
 name = "garminconnect"
-version = "0.3.2"
+version = "0.3.3"
 description = "Python 3 API wrapper for Garmin Connect"
 optional = false
-python-versions = ">=3.10"
+python-versions = ">=3.12"
 groups = ["main"]
 files = [
-    {file = "garminconnect-0.3.2-py3-none-any.whl", hash = "sha256:d0b6f332c3262209ef3e48e9a49ccf797a70ff5a7fbd9a546a9c4e9375654106"},
-    {file = "garminconnect-0.3.2.tar.gz", hash = "sha256:ca9d813139cb5f81cd6fc90236a225608e7e13acd7b1034170b0facfdd072d9a"},
+    {file = "garminconnect-0.3.3-py3-none-any.whl", hash = "sha256:e11dbbddf20abd60d5c8fbde1e7c688ca175a905237dfec8837ee935a1aca803"},
+    {file = "garminconnect-0.3.3.tar.gz", hash = "sha256:f608193d7a90079fa1fd1d86e8d10e88b871b6ab2500372a9dc48358f8c2d386"},
 ]
 
 [package.dependencies]
@@ -335,7 +335,7 @@ ua-generator = ">=1.0"
 [package.extras]
 dev = ["ipdb", "ipykernel", "ipython", "matplotlib", "pandas"]
 example = ["readchar"]
-linting = ["black[jupyter]", "isort", "mypy", "ruff", "types-requests"]
+linting = ["black[jupyter]", "codespell", "isort", "mypy", "pre-commit", "ruff", "types-requests"]
 testing = ["coverage", "pytest", "pytest-vcr (>=1.0.2)", "vcrpy (>=7.0.0)"]
 workout = ["pydantic (>=2.0.0)"]
 
@@ -742,5 +742,5 @@ dev = ["pytest"]
 
 [metadata]
 lock-version = "2.1"
-python-versions = ">=3.11"
-content-hash = "64829432148b70ede8b881a7d557ac1c01f3aee3e8b973ffe06f5ed3d7de4341"
+python-versions = ">=3.13"
+content-hash = "2ef8507b7c682f89f16f4b2d70f60400dff9f587aa41190062b4fa7af2345afa"
