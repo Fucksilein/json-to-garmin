@@ -1,0 +1,283 @@
+{
+  "$defs": {
+    "Repeat": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "repeat",
+          "default": "repeat",
+          "title": "Type",
+          "type": "string"
+        },
+        "iterations": {
+          "minimum": 1,
+          "title": "Iterations",
+          "type": "integer"
+        },
+        "steps": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "repeat": "#/$defs/Repeat",
+                "step": "#/$defs/Step"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/Step"
+              },
+              {
+                "$ref": "#/$defs/Repeat"
+              }
+            ]
+          },
+          "title": "Steps",
+          "type": "array"
+        },
+        "skip_last_rest": {
+          "default": true,
+          "title": "Skip Last Rest",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "iterations",
+        "steps"
+      ],
+      "title": "Repeat",
+      "type": "object"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "step",
+          "default": "step",
+          "title": "Type",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "warmup",
+            "work",
+            "recover",
+            "rest",
+            "cooldown",
+            "other"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "end": {
+          "enum": [
+            "time",
+            "distance",
+            "lap_button",
+            "calories"
+          ],
+          "title": "End",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "target": {
+          "$ref": "#/$defs/Target"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        }
+      },
+      "required": [
+        "kind",
+        "end"
+      ],
+      "title": "Step",
+      "type": "object"
+    },
+    "Target": {
+      "additionalProperties": false,
+      "description": "Step-Target.\n\n- `power`        : low/high in Watt (absolut)\n- `power_zone`   : zone 1-7\n- `hr_zone`      : zone 1-5\n- `pace`         : low/high als \"M:SS\" pro km (low = schneller, high = langsamer)\n- `cadence`      : low/high in rpm bzw. spm\n- `speed`        : low/high in m/s\n- `none`         : kein Target",
+      "properties": {
+        "kind": {
+          "default": "none",
+          "enum": [
+            "none",
+            "power",
+            "power_zone",
+            "hr_zone",
+            "pace",
+            "cadence",
+            "speed"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "low": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Low"
+        },
+        "high": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "High"
+        },
+        "pace_low": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pace Low"
+        },
+        "pace_high": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pace High"
+        },
+        "zone": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Zone"
+        }
+      },
+      "title": "Target",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "sport": {
+      "enum": [
+        "bike",
+        "run",
+        "swim",
+        "strength",
+        "other"
+      ],
+      "title": "Sport",
+      "type": "string"
+    },
+    "steps": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "repeat": "#/$defs/Repeat",
+            "step": "#/$defs/Step"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/Step"
+          },
+          {
+            "$ref": "#/$defs/Repeat"
+          }
+        ]
+      },
+      "title": "Steps",
+      "type": "array"
+    },
+    "estimated_duration_sec": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Estimated Duration Sec"
+    },
+    "estimated_distance_m": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Estimated Distance M"
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Description"
+    }
+  },
+  "required": [
+    "name",
+    "sport",
+    "steps"
+  ],
+  "title": "Workout",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
+}

@@ -1,0 +1,167 @@
+{
+  "$schema": "./schema.json",
+  "_comment": "Referenzbeispiele — ein Array von Workouts, das alle Modell-Features zeigt. Lädt nicht 1:1 als ein einzelnes Workout (das Modell selbst ist ein einzelnes Workout-Objekt). Siehe tests/test_examples.py für Validierung.",
+  "workouts": [
+    {
+      "_label": "Bike: Sweet-Spot 3x15min mit GA1-Block (Pause + Restzeit)",
+      "name": "Bike SS 3x15",
+      "sport": "bike",
+      "estimated_duration_sec": 5400,
+      "steps": [
+        {
+          "type": "step",
+          "kind": "warmup",
+          "end": "time",
+          "value": 900,
+          "target": { "kind": "power", "low": 154, "high": 210 }
+        },
+        {
+          "type": "repeat",
+          "iterations": 3,
+          "skip_last_rest": true,
+          "steps": [
+            {
+              "type": "step",
+              "kind": "work",
+              "end": "time",
+              "value": 900,
+              "target": { "kind": "power", "low": 246, "high": 266 },
+              "note": "Sweet-Spot 88-95% FTP"
+            },
+            {
+              "type": "step",
+              "kind": "recover",
+              "end": "time",
+              "value": 300,
+              "target": { "kind": "power", "low": 154, "high": 210 }
+            }
+          ]
+        },
+        {
+          "type": "step",
+          "kind": "work",
+          "end": "time",
+          "value": 1800,
+          "target": { "kind": "power", "low": 154, "high": 210 },
+          "note": "Restzeit als GA1"
+        },
+        {
+          "type": "step",
+          "kind": "cooldown",
+          "end": "time",
+          "value": 900,
+          "target": { "kind": "power", "low": 154, "high": 210 }
+        }
+      ]
+    },
+    {
+      "_label": "Run: 5x1000m@4:30 ±10s mit 1000m Recovery in HR-Zone 2",
+      "name": "Run 5x1km @ 4:30",
+      "sport": "run",
+      "steps": [
+        { "type": "step", "kind": "warmup", "end": "time", "value": 600 },
+        {
+          "type": "repeat",
+          "iterations": 5,
+          "steps": [
+            {
+              "type": "step",
+              "kind": "work",
+              "end": "distance",
+              "value": 1000,
+              "target": { "kind": "pace", "pace_low": "4:20", "pace_high": "4:40" }
+            },
+            {
+              "type": "step",
+              "kind": "recover",
+              "end": "distance",
+              "value": 1000,
+              "target": { "kind": "hr_zone", "zone": 2 }
+            }
+          ]
+        },
+        { "type": "step", "kind": "cooldown", "end": "time", "value": 600 }
+      ]
+    },
+    {
+      "_label": "Run: Pyramide 1'/2'/3'/2'/1' (verschachtelte Repeats wären auch möglich)",
+      "name": "Run Pyramide",
+      "sport": "run",
+      "steps": [
+        { "type": "step", "kind": "warmup", "end": "time", "value": 1200, "target": { "kind": "hr_zone", "zone": 2 } },
+        { "type": "step", "kind": "work", "end": "time", "value": 60,  "target": { "kind": "hr_zone", "zone": 5 } },
+        { "type": "step", "kind": "recover", "end": "time", "value": 120, "target": { "kind": "hr_zone", "zone": 2 } },
+        { "type": "step", "kind": "work", "end": "time", "value": 120, "target": { "kind": "hr_zone", "zone": 5 } },
+        { "type": "step", "kind": "recover", "end": "time", "value": 120, "target": { "kind": "hr_zone", "zone": 2 } },
+        { "type": "step", "kind": "work", "end": "time", "value": 180, "target": { "kind": "hr_zone", "zone": 5 } },
+        { "type": "step", "kind": "recover", "end": "time", "value": 120, "target": { "kind": "hr_zone", "zone": 2 } },
+        { "type": "step", "kind": "work", "end": "time", "value": 120, "target": { "kind": "hr_zone", "zone": 5 } },
+        { "type": "step", "kind": "recover", "end": "time", "value": 120, "target": { "kind": "hr_zone", "zone": 2 } },
+        { "type": "step", "kind": "work", "end": "time", "value": 60,  "target": { "kind": "hr_zone", "zone": 5 } },
+        { "type": "step", "kind": "cooldown", "end": "time", "value": 600 }
+      ]
+    },
+    {
+      "_label": "Run: 2 Sätze x 4 Intervalle (verschachteltes Repeat)",
+      "name": "Run 2x4x60s",
+      "sport": "run",
+      "steps": [
+        { "type": "step", "kind": "warmup", "end": "time", "value": 1200 },
+        {
+          "type": "repeat",
+          "iterations": 2,
+          "steps": [
+            {
+              "type": "repeat",
+              "iterations": 4,
+              "steps": [
+                { "type": "step", "kind": "work", "end": "time", "value": 60, "target": { "kind": "hr_zone", "zone": 5 } },
+                { "type": "step", "kind": "recover", "end": "time", "value": 120, "target": { "kind": "hr_zone", "zone": 2 } }
+              ]
+            },
+            { "type": "step", "kind": "recover", "end": "time", "value": 240, "target": { "kind": "hr_zone", "zone": 1 } }
+          ]
+        },
+        { "type": "step", "kind": "cooldown", "end": "time", "value": 600 }
+      ]
+    },
+    {
+      "_label": "Bike: Power-Zone (relativ statt absolute Watt)",
+      "name": "Bike Z3 60min",
+      "sport": "bike",
+      "steps": [
+        { "type": "step", "kind": "work", "end": "time", "value": 3600, "target": { "kind": "power_zone", "zone": 3 } }
+      ]
+    },
+    {
+      "_label": "Bike: Cadence-Drill (90-100 rpm)",
+      "name": "Bike Cadence Drill",
+      "sport": "bike",
+      "steps": [
+        {
+          "type": "step",
+          "kind": "work",
+          "end": "time",
+          "value": 1800,
+          "target": { "kind": "cadence", "low": 90, "high": 100 }
+        }
+      ]
+    },
+    {
+      "_label": "Swim: Lap-Button (manuell, kein Endkriterium)",
+      "name": "Swim 45min Easy",
+      "sport": "swim",
+      "steps": [
+        { "type": "step", "kind": "work", "end": "lap_button", "value": null, "note": "Easy schwimmen, Lap-Button drücken" }
+      ]
+    },
+    {
+      "_label": "Strength: Zeitvorgabe ohne Target",
+      "name": "Gym 30min",
+      "sport": "strength",
+      "steps": [
+        { "type": "step", "kind": "work", "end": "time", "value": 1800 }
+      ]
+    }
+  ]
+}
