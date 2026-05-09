@@ -322,8 +322,11 @@ def upload_and_schedule(
 ) -> dict | None:
     """Lädt das Workout hoch und plant es optional ein.
 
-    `client` muss `upload_workout(dict)` und `schedule_workout(id, date)` haben
+    `client` muss `upload_workout(dict)`, `schedule_workout(id, date)` haben
     (z. B. ein konfigurierter `garminconnect.Garmin`-Client).
+
+    Rückgabe (außer bei `dry_run`):
+        {"workout_id": int, "scheduled_workout_id": int | None, "raw": <upload result>}
     """
     payload = workout if isinstance(workout, dict) else to_garmin_dict(workout)
 
@@ -339,7 +342,35 @@ def upload_and_schedule(
     workout_id = result.get("workoutId")
     print(f"Upload OK – workout_id: {workout_id}  name: {payload['workoutName']}")
 
+    scheduled_workout_id: int | None = None
     if date_str:
         sched = client.schedule_workout(workout_id, date_str)
-        print(f"Geplant für {date_str} (scheduleId: {sched.get('workoutScheduleId')})")
-    return result
+        scheduled_workout_id = sched.get("workoutScheduleId")
+        print(f"Geplant für {date_str} (scheduleId: {scheduled_workout_id})")
+
+    return {
+        "workout_id": workout_id,
+        "scheduled_workout_id": scheduled_workout_id,
+        "raw": result,
+    }
+
+
+def delete_uploaded(
+    workout_id: int,
+    scheduled_workout_id: int | None = None,
+    *,
+    client,
+) -> None:
+    """Entfernt erst den Schedule (falls vorhanden), dann das Workout-Template.
+
+    Reihenfolge zählt: Garmin lehnt das Löschen eines noch geplanten Workouts ggf. ab.
+    """
+    if client is None:
+        raise ValueError("client erforderlich")
+
+    if scheduled_workout_id is not None:
+        client.unschedule_workout(scheduled_workout_id)
+        print(f"Unschedule OK – scheduled_workout_id: {scheduled_workout_id}")
+
+    client.delete_workout(workout_id)
+    print(f"Delete OK – workout_id: {workout_id}")

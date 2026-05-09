@@ -6,7 +6,11 @@ from json_to_garmin.builders import (
     build_run_intervals,
     build_swim,
 )
-from json_to_garmin.garmin_api import to_garmin_dict, upload_and_schedule
+from json_to_garmin.garmin_api import (
+    delete_uploaded,
+    to_garmin_dict,
+    upload_and_schedule,
+)
 from json_to_garmin.model import (
     EndCondition,
     Repeat,
@@ -33,6 +37,7 @@ __all__ = [
     "build_run_easy",
     "build_run_intervals",
     "build_swim",
+    "delete_uploaded",
     "to_garmin_dict",
     "upload_and_schedule",
 ]
