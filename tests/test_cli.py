@@ -32,6 +32,24 @@ def test_parse_single_workout(tmp_path):
     assert workouts[0].name == "Single"
 
 
+def test_parse_strips_schema_ref(tmp_path):
+    """`$schema`-Editor-Hint darf Pydantics `extra=forbid` nicht triggern."""
+    f = tmp_path / "with_schema.json"
+    f.write_text(
+        json.dumps(
+            {
+                "$schema": "./schema.json",
+                "name": "WithSchema",
+                "sport": "run",
+                "steps": [{"type": "step", "kind": "work", "end": "time", "value": 60}],
+            }
+        )
+    )
+    workouts = _parse_workouts(f)
+    assert len(workouts) == 1
+    assert workouts[0].name == "WithSchema"
+
+
 def test_dryrun_exits_zero(capsys):
     """`--dryrun` darf nicht ins Netz und muss exit 0 liefern."""
     rc = main([str(EXAMPLE), "--dryrun"])

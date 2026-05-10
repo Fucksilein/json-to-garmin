@@ -1,4 +1,14 @@
 {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "JsonToGarmin",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/WorkoutBare"
+    },
+    {
+      "$ref": "#/$defs/Wrapper"
+    }
+  ],
   "$defs": {
     "Repeat": {
       "additionalProperties": false,
@@ -195,88 +205,199 @@
       },
       "title": "Target",
       "type": "object"
-    }
-  },
-  "additionalProperties": false,
-  "properties": {
-    "name": {
-      "title": "Name",
-      "type": "string"
     },
-    "sport": {
-      "enum": [
-        "bike",
-        "run",
-        "swim",
-        "strength",
-        "other"
-      ],
-      "title": "Sport",
-      "type": "string"
-    },
-    "steps": {
-      "items": {
-        "discriminator": {
-          "mapping": {
-            "repeat": "#/$defs/Repeat",
-            "step": "#/$defs/Step"
-          },
-          "propertyName": "type"
-        },
-        "oneOf": [
-          {
-            "$ref": "#/$defs/Step"
-          },
-          {
-            "$ref": "#/$defs/Repeat"
-          }
-        ]
-      },
-      "title": "Steps",
-      "type": "array"
-    },
-    "estimated_duration_sec": {
-      "anyOf": [
-        {
-          "type": "integer"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "title": "Estimated Duration Sec"
-    },
-    "estimated_distance_m": {
-      "anyOf": [
-        {
-          "type": "number"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "title": "Estimated Distance M"
-    },
-    "description": {
-      "anyOf": [
-        {
+    "WorkoutBare": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
           "type": "string"
         },
-        {
-          "type": "null"
+        "sport": {
+          "enum": [
+            "bike",
+            "run",
+            "swim",
+            "strength",
+            "other"
+          ],
+          "title": "Sport",
+          "type": "string"
+        },
+        "steps": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "repeat": "#/$defs/Repeat",
+                "step": "#/$defs/Step"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/Step"
+              },
+              {
+                "$ref": "#/$defs/Repeat"
+              }
+            ]
+          },
+          "title": "Steps",
+          "type": "array"
+        },
+        "estimated_duration_sec": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimated Duration Sec"
+        },
+        "estimated_distance_m": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimated Distance M"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "$schema": {
+          "type": "string"
         }
+      },
+      "required": [
+        "name",
+        "sport",
+        "steps"
       ],
-      "default": null,
-      "title": "Description"
+      "type": "object"
+    },
+    "WorkoutEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "sport": {
+          "enum": [
+            "bike",
+            "run",
+            "swim",
+            "strength",
+            "other"
+          ],
+          "title": "Sport",
+          "type": "string"
+        },
+        "steps": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "repeat": "#/$defs/Repeat",
+                "step": "#/$defs/Step"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/Step"
+              },
+              {
+                "$ref": "#/$defs/Repeat"
+              }
+            ]
+          },
+          "title": "Steps",
+          "type": "array"
+        },
+        "estimated_duration_sec": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimated Duration Sec"
+        },
+        "estimated_distance_m": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Estimated Distance M"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "_label": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "sport",
+        "steps"
+      ],
+      "type": "object"
+    },
+    "Wrapper": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workouts"
+      ],
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "_comment": {
+          "type": "string"
+        },
+        "workouts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkoutEntry"
+          }
+        }
+      }
     }
-  },
-  "required": [
-    "name",
-    "sport",
-    "steps"
-  ],
-  "title": "Workout",
-  "type": "object"
+  }
 }

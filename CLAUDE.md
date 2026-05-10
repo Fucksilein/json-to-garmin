@@ -13,15 +13,18 @@ Installierbar via `pip install git+https://github.com/Fucksilein/json-to-garmin.
 
 ## Commands
 
-- Tests: `poetry run pytest`
+- Tests: `poetry run pytest` (29 Tests)
 - Einzelner Test: `poetry run pytest tests/test_garmin_api.py::test_distance_condition_uses_corrected_id`
 - Wheel bauen: `poetry build` (Output in `dist/`, nicht committen)
 - `schema.json` regenerieren: `poetry run python scripts/regenerate_schema.py`
 - Live-Roundtrip gegen Garmin: `poetry run python scripts/live_garmin_roundtrip.py` (siehe unten)
+- CLI (Konsolen-Skript via `[project.scripts]`): `json-to-garmin <file.json> [--dryrun] [--date YYYY-MM-DD]`
 
 ## Pipeline
 
 `Workout` (model.py, generisch) → `to_garmin_dict()` (garmin_api.py) → API-Dict via die Pydantic-Modelle in `garminconnect.workout` (`RunningWorkout`, `CyclingWorkout`, …). `upload_and_schedule()` und `delete_uploaded()` sind die einzigen Touchpoints zur Garmin-API; alles davor ist reine Übersetzung und in Tests ohne Netzwerk verifizierbar (`dry_run=True`). Builder bauen ausschließlich `Workout` — niemals API-Dicts. Die JSON-Diskriminator-Keys `"type": "step"` / `"type": "repeat"` kommen aus dem `Annotated[Union[...], Field(discriminator="type")]` in `model.py`.
+
+`cli.py` ist die User-Facing-Hülle: liest JSON (Wrapper- oder Bare-Format), filtert Editor-Meta-Keys (`_*`, `$schema`) raus — Pydantic hat `extra="forbid"` —, validiert via `Workout`, und ruft entweder `to_garmin_dict()` (bei `--dryrun`) oder `upload_and_schedule()` auf.
 
 ## Repo-Layout
 
@@ -29,19 +32,22 @@ Installierbar via `pip install git+https://github.com/Fucksilein/json-to-garmin.
 json-to-garmin/
 ├── pyproject.toml
 ├── schema.json                     ← aus model.Workout generiert (scripts/regenerate_schema.py)
-├── example_all.json                ← Referenzbeispiele (alle Features)
+├── example_all.json                ← Referenzbeispiele im Wrapper-Format (alle Features)
 ├── src/json_to_garmin/
 │   ├── __init__.py                 ← Re-Exports
 │   ├── model.py                    ← Workout, Step, Repeat, Target
 │   ├── garmin_api.py               ← to_garmin_dict, upload_and_schedule, delete_uploaded
-│   └── builders.py                 ← Convenience-Konstruktoren
+│   ├── builders.py                 ← Convenience-Konstruktoren
+│   ├── cli.py                      ← `json-to-garmin`-CLI (validate / dryrun / upload+schedule)
+│   └── py.typed                    ← PEP 561-Marker
 ├── scripts/
-│   ├── regenerate_schema.py        ← schema.json aus model.Workout neu schreiben
+│   ├── regenerate_schema.py        ← schema.json aus model.Workout neu schreiben (Bare + Wrapper)
 │   └── live_garmin_roundtrip.py    ← Upload aller example_all-Workouts → manueller Check → Delete
 └── tests/
     ├── test_model.py               ← Pydantic-Validierung, JSON-Roundtrip
     ├── test_garmin_api.py          ← API-IDs, Step-Reihenfolge, Repeat-Übersetzung
     ├── test_builders.py            ← Builder-Output-Struktur
+    ├── test_cli.py                 ← CLI-Parsing, Wrapper/Bare, Meta-Key-Filter, Dry-Run
     └── test_examples.py            ← example_all.json parst + serialisiert
 ```
 
@@ -62,6 +68,17 @@ poetry run python scripts/live_garmin_roundtrip.py --cleanup-only  # State-Datei
 - IDs werden in `scripts/.live_test_state.json` (gitignored) persistiert. Falls das Skript zwischen Upload und Cleanup abbricht, mit `--cleanup-only` aufräumen.
 - Token-Cache: `~/.garminconnect` (oder `GARMINTOKENS` env var). Erstes Login fragt MFA-Code im Terminal.
 
+
+## JSON-Formate (vom CLI akzeptiert)
+
+Zwei Top-Level-Varianten — beide vom generierten `schema.json` über `oneOf` abgedeckt:
+
+1. **Bare Workout** — ein einzelnes `Workout`-Objekt. Optional `$schema` für Editor-Bindung.
+2. **Wrapper** — `{ "$schema"?, "_comment"?, "workouts": [WorkoutEntry, ...] }`, wobei jeder Eintrag zusätzlich ein optionales `_label`-Feld haben darf. So sieht `example_all.json` aus.
+
+Editor-Meta-Keys (`_label`, `_comment`, `$schema`) werden in `cli._parse_workouts()` rausgefiltert, *bevor* Pydantic validiert — denn `Workout.model_config` hat `extra="forbid"`. Wenn du das Modell erweiterst, niemals die Filter-Liste vergessen.
+
+Wenn du `regenerate_schema.py` änderst: das Top-Level muss `oneOf: [WorkoutBare, Wrapper]` bleiben, sonst läuft die IDE-Validierung auf `example_all.json` ins Leere ("Property 'workouts' is not allowed").
 
 ## Datenmodell
 

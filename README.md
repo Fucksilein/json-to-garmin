@@ -178,16 +178,20 @@ Workout
 
 ### JSON Schema
 
-Reference [`schema.json`](schema.json) at the top of your workout files for autocomplete + inline validation in your editor:
+Reference [`schema.json`](schema.json) at the top of your workout files for autocomplete + inline validation in your editor. The schema accepts **both** top-level layouts the CLI understands:
 
-```json
-{
-  "$schema": "./schema.json",
-  "name": "...",
-  "sport": "run",
-  "steps": [...]
-}
-```
+- **Bare workout** — a single `Workout` object:
+
+    ```json
+    {
+      "$schema": "./schema.json",
+      "name": "...",
+      "sport": "run",
+      "steps": [...]
+    }
+    ```
+
+- **Wrapper** — `{ "$schema"?, "_comment"?, "workouts": [Workout, ...] }`, where each entry may also carry an optional `_label` doc string. This is what [`example_all.json`](example_all.json) uses.
 
 Regenerate after model changes:
 
@@ -244,7 +248,7 @@ These are documented quirks confirmed against live Garmin Connect on 2026-05-09.
 
 ```bash
 poetry install
-poetry run pytest                     # 25 tests
+poetry run pytest                     # 29 tests
 poetry run python scripts/regenerate_schema.py
 poetry build                          # wheel + sdist in dist/
 ```

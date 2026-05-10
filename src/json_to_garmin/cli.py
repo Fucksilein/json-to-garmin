@@ -21,7 +21,11 @@ from json_to_garmin.model import Workout
 
 
 def _parse_workouts(path: Path) -> list[Workout]:
-    """Lädt JSON. Akzeptiert Wrapper-Format `{"workouts": [...]}` oder ein einzelnes Workout."""
+    """Lädt JSON. Akzeptiert Wrapper-Format `{"workouts": [...]}` oder ein einzelnes Workout.
+
+    Filtert Editor-Meta-Keys (`_label`, `_comment`, `$schema`), bevor Pydantic validiert —
+    Workout hat `extra="forbid"`, würde also bei einem direkten `$schema`-Feld brechen.
+    """
     raw = json.loads(path.read_text())
     if isinstance(raw, dict) and "workouts" in raw:
         items = raw["workouts"]
@@ -29,7 +33,7 @@ def _parse_workouts(path: Path) -> list[Workout]:
         items = [raw]
     out: list[Workout] = []
     for item in items:
-        clean = {k: v for k, v in item.items() if not k.startswith("_")}
+        clean = {k: v for k, v in item.items() if not k.startswith(("_", "$"))}
         out.append(Workout.model_validate(clean))
     return out
 
