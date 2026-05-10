@@ -709,14 +709,14 @@ typing-extensions = ">=4.12.0"
 
 [[package]]
 name = "ua-generator"
-version = "2.0.26"
+version = "2.1.0"
 description = "A random user-agent generator"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "ua_generator-2.0.26-py3-none-any.whl", hash = "sha256:922283a6e950b74df641ab2f31d29d5470e0dfd4659e2474dbee94cd4ab50689"},
-    {file = "ua_generator-2.0.26.tar.gz", hash = "sha256:91e939d80529cfe1bb71e711bad9397b3bdead5440fe9c0445cf07e08fb19d2e"},
+    {file = "ua_generator-2.1.0-py3-none-any.whl", hash = "sha256:c23ddba84c1cf46bf12d7f44ad0a5a247760601c776f1cc0be02e2570626ebc3"},
+    {file = "ua_generator-2.1.0.tar.gz", hash = "sha256:34a68f9860965ad710ae91c1ae91c33a121f505f298efb1652bdc19e01b7d79d"},
 ]
 
 [[package]]
@@ -742,5 +742,5 @@ dev = ["pytest"]
 
 [metadata]
 lock-version = "2.1"
-python-versions = ">=3.12, <3.14"
-content-hash = "06f14f716859a78d1a0e6ca787cb8c00f31e1411f0d4912f2f77a61d58a0ef88"
+python-versions = ">=3.12, <3.15"
+content-hash = "8564e26cd34ec3b4d072cb7485c015cef1da0c066b65cb0f9b2da8ea54471814"

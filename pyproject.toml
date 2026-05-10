@@ -6,7 +6,7 @@ authors = [{ name = "Thomas Fuchs", email = "thomas@fuchs.one"}]
 license = "MIT"
 license-files = ["LICENSE"]
 readme = "README.md"
-requires-python = ">=3.12, <3.14"
+requires-python = ">=3.12, <3.15"
 keywords = [
     "garmin",
     "garmin-connect",
