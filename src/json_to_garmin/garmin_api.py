@@ -1,10 +1,11 @@
 """Workout (generisches Modell) → Garmin Connect API.
 
 Verwendet die Pydantic-Modelle aus `garminconnect.workout` für Serialisierung.
-Korrigierte API-IDs wo die Library falsche Werte hat (Stand 2026-04-07):
+Korrigierte API-IDs wo die Library falsche Werte hat (zuletzt validiert
+2026-05-09 via scripts/live_garmin_roundtrip.py):
 
 - ConditionType.DISTANCE: Library 1, API 3
-- TargetType.SPEED → pace.zone: ID 5/6 abhängig von Endpoint, hier 5
+- pace.zone Target-Type-ID: 5 (für key "pace.zone")
 
 Power und HR nutzen die Library-Werte direkt.
 """

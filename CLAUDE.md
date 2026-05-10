@@ -8,7 +8,8 @@ Generisches JSON-Workout-Modell + Adapter zu Garmin Connect. Sport-agnostisch (B
 
 ## Status
 
-Vorerst privat, lokal eingebunden via Pfad-Dependency. Kein PyPI, kein GitHub-Remote.
+Öffentlich auf GitHub (MIT): https://github.com/Fucksilein/json-to-garmin. Kein PyPI-Release.
+Installierbar via `pip install git+https://github.com/Fucksilein/json-to-garmin.git`.
 
 ## Commands
 

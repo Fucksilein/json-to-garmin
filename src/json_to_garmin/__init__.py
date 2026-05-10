@@ -1,3 +1,5 @@
+from importlib.metadata import PackageNotFoundError, version
+
 from json_to_garmin.builders import (
     build_bike_easy,
     build_bike_intervals,
@@ -22,6 +24,11 @@ from json_to_garmin.model import (
     Workout,
 )
 
+try:
+    __version__ = version("json-to-garmin")
+except PackageNotFoundError:  # paket nicht installiert (z. B. lokaler Quell-Checkout ohne pip install)
+    __version__ = "0.0.0+unknown"
+
 __all__ = [
     "EndCondition",
     "Repeat",
@@ -31,6 +38,7 @@ __all__ = [
     "Target",
     "TargetKind",
     "Workout",
+    "__version__",
     "build_bike_easy",
     "build_bike_intervals",
     "build_gym",

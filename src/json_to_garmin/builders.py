@@ -6,6 +6,7 @@ Erzeugen `Workout`-Instanzen — Garmin-spezifisches Mapping passiert in
 
 from __future__ import annotations
 
+from json_to_garmin.garmin_api import pace_to_ms
 from json_to_garmin.model import Repeat, Step, Target, Workout
 
 
@@ -15,12 +16,6 @@ def _offset_pace(pace_str: str, offset_secs: int) -> str:
     total = int(parts[0]) * 60 + int(parts[1]) + offset_secs
     total = max(total, 1)
     return f"{total // 60}:{total % 60:02d}"
-
-
-def _pace_to_ms(pace_str: str) -> float:
-    parts = pace_str.split(":")
-    minutes = int(parts[0]) + int(parts[1]) / 60
-    return round(1000 / (minutes * 60), 7)
 
 
 def build_run_intervals(
@@ -53,7 +48,7 @@ def build_run_intervals(
     cd = Step(kind="cooldown", end="time", value=cooldown_min * 60)
     repeat = Repeat(iterations=reps, steps=[interval, recovery])
 
-    est_interval_secs = interval_dist_m / _pace_to_ms(interval_pace)
+    est_interval_secs = interval_dist_m / pace_to_ms(interval_pace)
     est_recovery_secs = recovery_dist_m / 2.0
     est_total = int(
         warmup_min * 60 + reps * (est_interval_secs + est_recovery_secs) + cooldown_min * 60

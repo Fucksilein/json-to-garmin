@@ -1,9 +1,35 @@
 [project]
 name = "json-to-garmin"
 version = "0.1.0"
-description = "Generic JSON-defined workouts → Garmin Connect"
+description = "Generic JSON workout schema + CLI → Garmin Connect (run, bike, swim, strength; nested repeats; power/HR/pace/cadence/speed targets)"
 authors = [{ name = "Thomas Fuchs", email = "thomas@fuchs.one"}]
-requires-python = ">=3.13, <3.14"
+license = "MIT"
+license-files = ["LICENSE"]
+readme = "README.md"
+requires-python = ">=3.12, <3.14"
+keywords = [
+    "garmin",
+    "garmin-connect",
+    "workout",
+    "training",
+    "cycling",
+    "running",
+    "swimming",
+    "json-schema",
+    "pydantic",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Other/Nonlisted Topic",
+    "Typing :: Typed",
+]
 dependencies = [
     "pydantic>=2.10,<3.0",
     "garminconnect>=0.3.2,<1.0.0",
@@ -14,12 +40,21 @@ dev = [
     "pytest>=8.0,<9.0",
 ]
 
+[project.scripts]
+json-to-garmin = "json_to_garmin.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/Fucksilein/json-to-garmin"
+Source = "https://github.com/Fucksilein/json-to-garmin"
+Issues = "https://github.com/Fucksilein/json-to-garmin/issues"
+
 [build-system]
 requires = ["poetry-core>=2.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 packages = [{ include = "json_to_garmin", from = "src" }]
+include = [{ path = "src/json_to_garmin/py.typed", format = ["sdist", "wheel"] }]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
