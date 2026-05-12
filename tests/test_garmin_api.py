@@ -170,3 +170,51 @@ def test_lap_button_end_condition():
     assert step["endCondition"]["conditionTypeKey"] == "lap.button"
     # Garmin to_dict() lässt endConditionValue=None weg — egal, lap.button braucht keinen Wert
     assert step.get("endConditionValue") is None
+
+
+# --- Multisport -------------------------------------------------------------
+
+from json_to_garmin import Segment  # noqa: E402
+
+
+def _make_sprint_triathlon() -> Workout:
+    return Workout(
+        name="Sprint Triathlon",
+        sport="multisport",
+        segments=[
+            Segment(sport="swim", steps=[Step(kind="work", end="distance", value=750)]),
+            Segment(sport="bike", steps=[Step(kind="work", end="distance", value=20000)]),
+            Segment(sport="run", steps=[Step(kind="work", end="distance", value=5000)]),
+        ],
+    )
+
+
+def test_multisport_top_level_sport_type():
+    from json_to_garmin.garmin_api import SPORT_TYPE_MULTISPORT_ID
+    d = to_garmin_dict(_make_sprint_triathlon())
+    assert d["sportType"]["sportTypeKey"] == "multi_sport"
+    assert d["sportType"]["sportTypeId"] == SPORT_TYPE_MULTISPORT_ID == 10
+
+
+def test_multisport_segment_count():
+    d = to_garmin_dict(_make_sprint_triathlon())
+    assert len(d["workoutSegments"]) == 3
+
+
+def test_multisport_segment_sport_types():
+    d = to_garmin_dict(_make_sprint_triathlon())
+    keys = [seg["sportType"]["sportTypeKey"] for seg in d["workoutSegments"]]
+    assert keys == ["swimming", "cycling", "running"]
+
+
+def test_multisport_segment_order():
+    d = to_garmin_dict(_make_sprint_triathlon())
+    orders = [seg["segmentOrder"] for seg in d["workoutSegments"]]
+    assert orders == [1, 2, 3]
+
+
+def test_multisport_steps_inside_segment():
+    d = to_garmin_dict(_make_sprint_triathlon())
+    swim_steps = d["workoutSegments"][0]["workoutSteps"]
+    assert len(swim_steps) == 1
+    assert swim_steps[0]["endCondition"]["conditionTypeId"] == CONDITION_DISTANCE_ID

@@ -7,9 +7,10 @@ from __future__ import annotations
 
 from typing import Annotated, Literal, Union
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-Sport = Literal["bike", "run", "swim", "strength", "other"]
+SingleSport = Literal["bike", "run", "swim", "strength", "other"]
+Sport = Literal["bike", "run", "swim", "strength", "multisport", "other"]
 StepKind = Literal["warmup", "work", "recover", "rest", "cooldown", "other"]
 EndCondition = Literal["time", "distance", "lap_button", "calories"]
 TargetKind = Literal[
@@ -63,12 +64,32 @@ StepOrRepeat = Annotated[Union[Step, Repeat], Field(discriminator="type")]
 Repeat.model_rebuild()
 
 
+class Segment(BaseModel):
+    """Ein Sport-Abschnitt innerhalb eines Multisport-Workouts."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    sport: SingleSport
+    steps: list[StepOrRepeat]
+
+
 class Workout(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     name: str
     sport: Sport
-    steps: list[StepOrRepeat]
+    steps: list[StepOrRepeat] = Field(default_factory=list)
+    segments: list[Segment] | None = None
     estimated_duration_sec: int | None = None
     estimated_distance_m: float | None = None
     description: str | None = None
+
+    @model_validator(mode="after")
+    def _validate_structure(self) -> "Workout":
+        if self.sport == "multisport":
+            if not self.segments:
+                raise ValueError("sport='multisport' benötigt 'segments' mit mindestens einem Eintrag")
+        else:
+            if not self.steps:
+                raise ValueError("Single-Sport-Workout benötigt mindestens einen Step in 'steps'")
+        return self

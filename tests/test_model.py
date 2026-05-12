@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from json_to_garmin import Repeat, Step, Target, Workout
+from json_to_garmin import Repeat, Segment, Step, Target, Workout
 
 
 def test_minimal_workout():
@@ -78,3 +78,49 @@ def test_lap_button_step():
 def test_pace_target_strings():
     t = Target(kind="pace", pace_low="4:20", pace_high="4:40")
     assert t.pace_low == "4:20"
+
+
+# --- Multisport -------------------------------------------------------------
+
+
+def test_multisport_valid():
+    w = Workout(
+        name="Triathlon",
+        sport="multisport",
+        segments=[
+            Segment(sport="swim", steps=[Step(kind="work", end="distance", value=750)]),
+            Segment(sport="bike", steps=[Step(kind="work", end="distance", value=20000)]),
+            Segment(sport="run", steps=[Step(kind="work", end="distance", value=5000)]),
+        ],
+    )
+    assert w.sport == "multisport"
+    assert len(w.segments) == 3
+
+
+def test_multisport_without_segments_rejected():
+    with pytest.raises(ValidationError):
+        Workout(name="x", sport="multisport")
+
+
+def test_multisport_roundtrip():
+    w = Workout(
+        name="Duathlon",
+        sport="multisport",
+        segments=[
+            Segment(sport="run", steps=[Step(kind="work", end="distance", value=5000)]),
+            Segment(sport="bike", steps=[Step(kind="work", end="distance", value=20000)]),
+            Segment(sport="run", steps=[Step(kind="work", end="distance", value=2500)]),
+        ],
+    )
+    w2 = Workout.model_validate_json(w.model_dump_json())
+    assert w2 == w
+
+
+def test_single_sport_without_steps_rejected():
+    with pytest.raises(ValidationError):
+        Workout(name="x", sport="run")
+
+
+def test_multisport_as_segment_sport_rejected():
+    with pytest.raises(ValidationError):
+        Segment(sport="multisport", steps=[Step(kind="work", end="time", value=60)])  # type: ignore[arg-type]

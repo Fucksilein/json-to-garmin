@@ -19,6 +19,7 @@ from garminconnect.workout import (
     CyclingWorkout,
     ExecutableStep,
     FitnessEquipmentWorkout,
+    MultiSportWorkout,
     RepeatGroup,
     RunningWorkout,
     StepType,
@@ -27,15 +28,16 @@ from garminconnect.workout import (
     WorkoutSegment,
 )
 
-from json_to_garmin.model import Repeat, Sport, Step, Target, Workout
+from json_to_garmin.model import Repeat, Segment, Sport, Step, Target, Workout
 
 # --- Korrigierte API-IDs ----------------------------------------------------
 
-CONDITION_DISTANCE_ID = 3   # Library: 1
-TARGET_PACE_ZONE_ID = 5     # für key "pace.zone"
+CONDITION_DISTANCE_ID = 3       # Library: 1
+TARGET_PACE_ZONE_ID = 5         # für key "pace.zone"
 TARGET_POWER_ID = TargetType.POWER
 TARGET_HR_ID = TargetType.HEART_RATE
 TARGET_NO_TARGET_ID = TargetType.NO_TARGET
+SPORT_TYPE_MULTISPORT_ID = 10   # Library: 5 (falsch — 5 ist Krafttraining)
 
 # --- Step-Type Dicts --------------------------------------------------------
 
@@ -73,12 +75,19 @@ _SPORT_TO_WORKOUT_CLS = {
     "bike": CyclingWorkout,
     "swim": SwimmingWorkout,
     "strength": FitnessEquipmentWorkout,
+    "multisport": MultiSportWorkout,
     "other": FitnessEquipmentWorkout,
 }
 
 
 def _workout_cls_for(sport: Sport):
     return _SPORT_TO_WORKOUT_CLS[sport]
+
+
+def _sport_type_for(sport: str) -> dict:
+    """Gibt den sportType-Dict für einen Einzel-Sport zurück (für Segment-Einträge)."""
+    cls = _SPORT_TO_WORKOUT_CLS[sport]
+    return cls.model_fields["sportType"].default_factory()
 
 
 # --- End-Conditions ---------------------------------------------------------
@@ -268,9 +277,9 @@ def _build_repeat(rep: Repeat, step_order: int) -> RepeatGroup:
     )
 
 
-def _build_children(steps: list) -> list:
+def _build_children(steps: list, start_order: int = 1) -> list:
     out: list = []
-    order = 1
+    order = start_order
     for s in steps:
         if isinstance(s, Step):
             out.append(_build_executable(s, order))
@@ -285,8 +294,43 @@ def _build_children(steps: list) -> list:
 # --- Workout → API-Dict -----------------------------------------------------
 
 
+def _to_garmin_dict_multisport(workout: Workout) -> dict:
+    """Übersetzt ein Multisport-Workout in das Garmin-API-Dict.
+
+    stepOrder muss global einmalig über alle Segmente sein — Garmin lehnt Duplikate ab.
+    """
+    segments = []
+    global_order = 1
+    for i, seg in enumerate(workout.segments, 1):  # type: ignore[union-attr]
+        sport_type = _sport_type_for(seg.sport)
+        children = _build_children(seg.steps, start_order=global_order)
+        global_order += len(seg.steps)
+        segments.append(WorkoutSegment(segmentOrder=i, sportType=sport_type, workoutSteps=children))
+
+    api = MultiSportWorkout(
+        workoutName=workout.name,
+        estimatedDurationInSecs=workout.estimated_duration_sec or 0,
+        workoutSegments=segments,
+    )
+    result = api.to_dict()
+    # Library hat sportTypeId=5 (Krafttraining) — korrekt ist 10 (multi_sport)
+    result["sportType"] = {
+        "sportTypeId": SPORT_TYPE_MULTISPORT_ID,
+        "sportTypeKey": "multi_sport",
+        "displayOrder": 4,
+    }
+    if workout.estimated_distance_m is not None:
+        result["estimatedDistanceInMeters"] = workout.estimated_distance_m
+    if workout.description is not None:
+        result["description"] = workout.description
+    return result
+
+
 def to_garmin_dict(workout: Workout) -> dict:
     """Übersetzt ein generisches Workout in das Garmin-API-Dict."""
+    if workout.sport == "multisport":
+        return _to_garmin_dict_multisport(workout)
+
     cls = _workout_cls_for(workout.sport)
     sport_type = cls.model_fields["sportType"].default_factory()
     children = _build_children(workout.steps)

@@ -19,6 +19,6 @@ def test_examples_parse_and_serialize():
         d = to_garmin_dict(w)
         assert d["workoutName"] == w.name
         assert d["sportType"]["sportTypeKey"] in {
-            "running", "cycling", "swimming", "fitness_equipment"
+            "running", "cycling", "swimming", "fitness_equipment", "multi_sport"
         }
         assert len(d["workoutSegments"][0]["workoutSteps"]) >= 1

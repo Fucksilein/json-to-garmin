@@ -115,6 +115,7 @@ Workout
 |-----------------------------|---------|----------------|
 | `ConditionType.DISTANCE`    | 1       | **3**          |
 | `pace.zone` Target-Type     | —       | **5** (workoutTargetTypeId) |
+| `MultiSportWorkout.sportTypeId` | 5  | **10**         |
 
 Power und HR-Zone nutzen die Library-Werte direkt (`POWER=2`, `HEART_RATE=4`), Schlüssel sind `power.zone` bzw. `heart.rate.zone`.
 
@@ -129,8 +130,11 @@ Beobachtungen aus echten Uploads + Anzeige in Garmin Connect — beim Erweitern 
 - **Lap-Button-Steps** zeigen sich als „Lap-Taste drücken / Dauer". Note wird durchgereicht. Kein `endConditionValue` nötig.
 - **`unschedule_workout` MUSS vor `delete_workout` laufen.** `delete_uploaded()` erzwingt diese Reihenfolge — Garmin lehnt sonst potentiell ab. `workoutId` (Template) und `scheduledWorkoutId` (Kalender-Eintrag) sind getrennte IDs; beide werden vom Upload+Schedule-Flow zurückgegeben.
 - **`upload_and_schedule()` Rückgabe-Schema** ist `{"workout_id": int, "scheduled_workout_id": int | None, "raw": <upload-response>}` — bei Erweiterungen beibehalten, sonst bricht das Live-Skript.
+- **Multisport: `stepOrder` muss global einmalig sein** (über alle Segmente hinweg). `_to_garmin_dict_multisport()` in `garmin_api.py` zählt daher einen `global_order`-Counter über Segmentgrenzen. Innerhalb von `RepeatGroup`-Children bleibt die lokale Ordnung unberührt (Garmin akzeptiert das).
+- **Multisport: Garmin erlaubt maximal 25 Segmente.** Ab 26 kommt HTTP 400 ("error with the workout segments"). Ermittelt 2026-05-12 via Binärsuche (n=2…42). Für mehr als 25 Wiederholungen Repeats *innerhalb* eines Segments nutzen statt vieler Segmente.
+- **Multisport: Library hat falsche `sportTypeId`.** `MultiSportWorkout` in der Library nutzt `sportTypeId=5` (`strength_training`). Korrekt ist **`sportTypeId=10`** (`multi_sport`). In `garmin_api.py` als `SPORT_TYPE_MULTISPORT_ID=10` korrigiert; `_to_garmin_dict_multisport()` überschreibt das `sportType`-Dict nach `to_dict()`. Validiert 2026-05-12 via `get_workout_by_id()` auf ein bestehendes Multisport-Workout.
 
-Diese Erkenntnisse stammen aus dem Roundtrip am 2026-05-09 mit allen 8 Beispielen aus `example_all.json`. Falls API-Verhalten sich ändert, neu validieren via `scripts/live_garmin_roundtrip.py`.
+Diese Erkenntnisse stammen aus dem Roundtrip am 2026-05-09 mit allen 8 Beispielen aus `example_all.json` sowie dem Multisport-Test am 2026-05-12. Falls API-Verhalten sich ändert, neu validieren via `scripts/live_garmin_roundtrip.py`.
 
 ## Konventionen
 

@@ -16,6 +16,8 @@ from json_to_garmin.garmin_api import (
 from json_to_garmin.model import (
     EndCondition,
     Repeat,
+    Segment,
+    SingleSport,
     Sport,
     Step,
     StepKind,
@@ -32,6 +34,8 @@ except PackageNotFoundError:  # paket nicht installiert (z. B. lokaler Quell-Che
 __all__ = [
     "EndCondition",
     "Repeat",
+    "Segment",
+    "SingleSport",
     "Sport",
     "Step",
     "StepKind",

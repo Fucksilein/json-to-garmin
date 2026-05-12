@@ -58,6 +58,50 @@
       "title": "Repeat",
       "type": "object"
     },
+    "Segment": {
+      "additionalProperties": false,
+      "description": "Ein Sport-Abschnitt innerhalb eines Multisport-Workouts.",
+      "properties": {
+        "sport": {
+          "enum": [
+            "bike",
+            "run",
+            "swim",
+            "strength",
+            "other"
+          ],
+          "title": "Sport",
+          "type": "string"
+        },
+        "steps": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "repeat": "#/$defs/Repeat",
+                "step": "#/$defs/Step"
+              },
+              "propertyName": "type"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/Step"
+              },
+              {
+                "$ref": "#/$defs/Repeat"
+              }
+            ]
+          },
+          "title": "Steps",
+          "type": "array"
+        }
+      },
+      "required": [
+        "sport",
+        "steps"
+      ],
+      "title": "Segment",
+      "type": "object"
+    },
     "Step": {
       "additionalProperties": false,
       "properties": {
@@ -219,6 +263,7 @@
             "run",
             "swim",
             "strength",
+            "multisport",
             "other"
           ],
           "title": "Sport",
@@ -244,6 +289,21 @@
           },
           "title": "Steps",
           "type": "array"
+        },
+        "segments": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Segment"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Segments"
         },
         "estimated_duration_sec": {
           "anyOf": [
@@ -287,8 +347,7 @@
       },
       "required": [
         "name",
-        "sport",
-        "steps"
+        "sport"
       ],
       "type": "object"
     },
@@ -305,6 +364,7 @@
             "run",
             "swim",
             "strength",
+            "multisport",
             "other"
           ],
           "title": "Sport",
@@ -330,6 +390,21 @@
           },
           "title": "Steps",
           "type": "array"
+        },
+        "segments": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/Segment"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Segments"
         },
         "estimated_duration_sec": {
           "anyOf": [
@@ -373,8 +448,7 @@
       },
       "required": [
         "name",
-        "sport",
-        "steps"
+        "sport"
       ],
       "type": "object"
     },

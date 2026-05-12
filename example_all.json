@@ -162,6 +162,60 @@
       "steps": [
         { "type": "step", "kind": "work", "end": "time", "value": 1800 }
       ]
+    },
+    {
+      "_label": "Multisport: Sprint-Triathlon (Swim / Bike / Run)",
+      "name": "Sprint Triathlon",
+      "sport": "multisport",
+      "estimated_duration_sec": 4500,
+      "segments": [
+        {
+          "sport": "swim",
+          "steps": [
+            { "type": "step", "kind": "warmup", "end": "distance", "value": 200, "target": { "kind": "none" } },
+            { "type": "step", "kind": "work",   "end": "distance", "value": 550, "target": { "kind": "hr_zone", "zone": 3 } }
+          ]
+        },
+        {
+          "sport": "bike",
+          "steps": [
+            { "type": "step", "kind": "work",     "end": "distance", "value": 20000, "target": { "kind": "power_zone", "zone": 3 } },
+            { "type": "step", "kind": "cooldown", "end": "distance", "value": 500,   "target": { "kind": "none" } }
+          ]
+        },
+        {
+          "sport": "run",
+          "steps": [
+            { "type": "step", "kind": "work",     "end": "distance", "value": 4800, "target": { "kind": "pace", "pace_low": "4:30", "pace_high": "5:00" } },
+            { "type": "step", "kind": "cooldown", "end": "distance", "value": 200,  "target": { "kind": "none" } }
+          ]
+        }
+      ]
+    },
+    {
+      "_label": "Multisport: Duathlon (Run / Bike / Run)",
+      "name": "Duathlon Sprint",
+      "sport": "multisport",
+      "segments": [
+        {
+          "sport": "run",
+          "steps": [
+            { "type": "step", "kind": "work", "end": "distance", "value": 5000, "target": { "kind": "pace", "pace_low": "4:20", "pace_high": "4:50" } }
+          ]
+        },
+        {
+          "sport": "bike",
+          "steps": [
+            { "type": "step", "kind": "work", "end": "distance", "value": 20000, "target": { "kind": "power_zone", "zone": 3 } }
+          ]
+        },
+        {
+          "sport": "run",
+          "steps": [
+            { "type": "step", "kind": "work", "end": "distance", "value": 2500, "target": { "kind": "pace", "pace_low": "4:30", "pace_high": "5:10" } }
+          ]
+        }
+      ]
     }
   ]
 }
