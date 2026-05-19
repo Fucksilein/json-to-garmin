@@ -1,0 +1,93 @@
+{
+  "$schema": "./schema.json",
+  "_comment": "Beispiel-Trainingswoche für `upload-week`. Sessions ohne `workout` sind Ruhetage und werden übersprungen.",
+  "sessions": [
+    {
+      "date": "2026-05-18",
+      "_label": "Mo — Easy run",
+      "workout": {
+        "name": "Easy Run 60min",
+        "sport": "run",
+        "steps": [
+          { "type": "step", "kind": "warmup", "end": "time", "value": 300, "target": { "kind": "hr_zone", "zone": 1 } },
+          { "type": "step", "kind": "work", "end": "time", "value": 3000, "target": { "kind": "hr_zone", "zone": 2 } },
+          { "type": "step", "kind": "cooldown", "end": "time", "value": 300, "target": { "kind": "hr_zone", "zone": 1 } }
+        ]
+      }
+    },
+    {
+      "date": "2026-05-19",
+      "_label": "Di — Bike Z3 (zonen-basiert, FTP-portabel)",
+      "workout": {
+        "name": "Bike Z3 60min",
+        "sport": "bike",
+        "steps": [
+          { "type": "step", "kind": "warmup", "end": "time", "value": 300, "target": { "kind": "power_zone", "zone": 1 } },
+          { "type": "step", "kind": "work", "end": "time", "value": 3600, "target": { "kind": "power_zone", "zone": 3 } },
+          { "type": "step", "kind": "cooldown", "end": "time", "value": 300, "target": { "kind": "power_zone", "zone": 1 } }
+        ]
+      }
+    },
+    {
+      "date": "2026-05-20",
+      "_label": "Mi — Ruhetag"
+    },
+    {
+      "date": "2026-05-21",
+      "_label": "Do — Run Threshold 4x8min",
+      "workout": {
+        "name": "Run Threshold 4x8",
+        "sport": "run",
+        "steps": [
+          { "type": "step", "kind": "warmup", "end": "time", "value": 300 },
+          {
+            "type": "repeat",
+            "iterations": 4,
+            "steps": [
+              { "type": "step", "kind": "work", "end": "time", "value": 480, "target": { "kind": "pace", "pace_low": "4:00", "pace_high": "4:15" } },
+              { "type": "step", "kind": "recover", "end": "time", "value": 120, "target": { "kind": "hr_zone", "zone": 2 } }
+            ]
+          },
+          { "type": "step", "kind": "cooldown", "end": "time", "value": 300 }
+        ]
+      }
+    },
+    {
+      "date": "2026-05-22",
+      "_label": "Fr — Krafttraining",
+      "workout": {
+        "name": "Gym 45min",
+        "sport": "strength",
+        "steps": [
+          { "type": "step", "kind": "work", "end": "time", "value": 2700 }
+        ]
+      }
+    },
+    {
+      "date": "2026-05-23",
+      "_label": "Sa — Long bike (Z2)",
+      "workout": {
+        "name": "Long Bike Z2",
+        "sport": "bike",
+        "steps": [
+          { "type": "step", "kind": "warmup", "end": "time", "value": 300, "target": { "kind": "power_zone", "zone": 1 } },
+          { "type": "step", "kind": "work", "end": "time", "value": 10800, "target": { "kind": "power_zone", "zone": 2 } },
+          { "type": "step", "kind": "cooldown", "end": "time", "value": 300, "target": { "kind": "power_zone", "zone": 1 } }
+        ]
+      }
+    },
+    {
+      "date": "2026-05-24",
+      "_label": "So — Easy swim",
+      "workout": {
+        "name": "Swim 45min Easy",
+        "sport": "swim",
+        "steps": [
+          { "type": "step", "kind": "warmup", "end": "time", "value": 300 },
+          { "type": "step", "kind": "work", "end": "lap_button", "value": null, "note": "Easy schwimmen, Lap-Button drücken" },
+          { "type": "step", "kind": "cooldown", "end": "time", "value": 300 }
+        ]
+      }
+    }
+  ]
+}

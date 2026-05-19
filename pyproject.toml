@@ -42,6 +42,7 @@ dev = [
 
 [project.scripts]
 json-to-garmin = "json_to_garmin.cli:main"
+upload-week = "json_to_garmin.cli:upload_week_main"
 
 [project.urls]
 Homepage = "https://github.com/Fucksilein/json-to-garmin"

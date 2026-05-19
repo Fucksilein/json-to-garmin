@@ -1,13 +1,15 @@
 """schema.json aus model.Workout regenerieren.
 
-Emittiert ein Top-Level-`oneOf` mit beiden vom CLI akzeptierten Formaten:
+Emittiert ein Top-Level-`oneOf` mit allen vom CLI akzeptierten Formaten:
 
 - bare Workout: das einzelne Modell-Objekt (mit optionalem `$schema`-Feld für Editor-Bindung).
 - Wrapper: `{ "$schema"?, "_comment"?, "workouts": [WorkoutEntry, ...] }`, wobei jede
   Eintrag-Variante zusätzlich ein optionales `_label` zulässt.
+- WeekWrapper: `{ "$schema"?, "_comment"?, "sessions": [SessionEntry, ...] }` für den
+  `upload-week`-Befehl; jede Session braucht `date` und optional ein `workout`.
 
-Damit validiert das Schema sowohl `example_all.json` (Wrapper) als auch eine einzelne
-Workout-Datei in einem Editor wie JetBrains/VS Code.
+Damit validiert das Schema `example_all.json` (Wrapper), `example_week.json` (WeekWrapper)
+und einzelne Workout-Dateien in Editoren wie JetBrains/VS Code.
 """
 
 import json
@@ -49,12 +51,39 @@ defs["Wrapper"] = {
     },
 }
 
+defs["SessionEntry"] = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": ["date"],
+    "properties": {
+        "date": {"type": "string", "pattern": r"^\d{4}-\d{2}-\d{2}$"},
+        "workout": {"$ref": "#/$defs/WorkoutEntry"},
+        "_label": {"type": "string"},
+        "_comment": {"type": "string"},
+    },
+}
+
+defs["WeekWrapper"] = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": ["sessions"],
+    "properties": {
+        "$schema": SCHEMA_PROP,
+        "_comment": {"type": "string"},
+        "sessions": {
+            "type": "array",
+            "items": {"$ref": "#/$defs/SessionEntry"},
+        },
+    },
+}
+
 root = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "JsonToGarmin",
     "oneOf": [
         {"$ref": "#/$defs/WorkoutBare"},
         {"$ref": "#/$defs/Wrapper"},
+        {"$ref": "#/$defs/WeekWrapper"},
     ],
     "$defs": defs,
 }
