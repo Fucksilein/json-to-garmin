@@ -39,6 +39,14 @@ TARGET_HR_ID = TargetType.HEART_RATE
 TARGET_NO_TARGET_ID = TargetType.NO_TARGET
 SPORT_TYPE_MULTISPORT_ID = 10   # Library: 5 (falsch — 5 ist Krafttraining)
 
+# Kandidaten-Methoden zum Entplanen eines Workouts — robust gegen
+# Versionsdrift / Forks der garminconnect-Library.
+_UNSCHEDULE_METHOD_CANDIDATES = (
+    "unschedule_workout",
+    "delete_workout_schedule",
+    "remove_workout_scheduled",
+)
+
 # --- Step-Type Dicts --------------------------------------------------------
 
 _STEP_KIND_MAP = {
@@ -414,7 +422,21 @@ def delete_uploaded(
         raise ValueError("client erforderlich")
 
     if scheduled_workout_id is not None:
-        client.unschedule_workout(scheduled_workout_id)
+        unschedule = next(
+            (
+                getattr(client, name)
+                for name in _UNSCHEDULE_METHOD_CANDIDATES
+                if callable(getattr(client, name, None))
+            ),
+            None,
+        )
+        if unschedule is None:
+            raise AttributeError(
+                "Garmin-Client bietet keine bekannte Unschedule-Methode "
+                f"(probiert: {', '.join(_UNSCHEDULE_METHOD_CANDIDATES)}). "
+                "garminconnect-Version prüfen."
+            )
+        unschedule(scheduled_workout_id)
         print(f"Unschedule OK – scheduled_workout_id: {scheduled_workout_id}")
 
     client.delete_workout(workout_id)

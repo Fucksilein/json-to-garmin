@@ -3,9 +3,11 @@ from importlib.metadata import PackageNotFoundError, version
 from json_to_garmin.builders import (
     build_bike_easy,
     build_bike_intervals,
+    build_bike_zone,
     build_gym,
     build_run_easy,
     build_run_intervals,
+    build_run_threshold,
     build_swim,
 )
 from json_to_garmin.garmin_api import (
@@ -45,9 +47,11 @@ __all__ = [
     "__version__",
     "build_bike_easy",
     "build_bike_intervals",
+    "build_bike_zone",
     "build_gym",
     "build_run_easy",
     "build_run_intervals",
+    "build_run_threshold",
     "build_swim",
     "delete_uploaded",
     "to_garmin_dict",
