@@ -14,14 +14,14 @@ files = [
 
 [[package]]
 name = "certifi"
-version = "2026.4.22"
+version = "2026.5.20"
 description = "Python package for providing Mozilla's CA Bundle."
 optional = false
 python-versions = ">=3.7"
 groups = ["main"]
 files = [
-    {file = "certifi-2026.4.22-py3-none-any.whl", hash = "sha256:3cb2210c8f88ba2318d29b0388d1023c8492ff72ecdde4ebdaddbb13a31b1c4a"},
-    {file = "certifi-2026.4.22.tar.gz", hash = "sha256:8d455352a37b71bf76a79caa83a3d6c25afee4a385d632127b6afb3963f1c580"},
+    {file = "certifi-2026.5.20-py3-none-any.whl", hash = "sha256:3c52e209ba0a4ad7aebe60436a4ab349c39e1e602e8c134221e546902ad25897"},
+    {file = "certifi-2026.5.20.tar.gz", hash = "sha256:69dea482ab64caa7b9f6aba1c6bf48bb6a5448d1c0f1b17ab42ad8c763a5344d"},
 ]
 
 [[package]]
@@ -317,14 +317,14 @@ test = ["charset_normalizer (>=3.3.2,<4.0)", "cryptography (>=46.0.4,<47.0)", "h
 
 [[package]]
 name = "garminconnect"
-version = "0.3.3"
+version = "0.3.5"
 description = "Python 3 API wrapper for Garmin Connect"
 optional = false
 python-versions = ">=3.12"
 groups = ["main"]
 files = [
-    {file = "garminconnect-0.3.3-py3-none-any.whl", hash = "sha256:e11dbbddf20abd60d5c8fbde1e7c688ca175a905237dfec8837ee935a1aca803"},
-    {file = "garminconnect-0.3.3.tar.gz", hash = "sha256:f608193d7a90079fa1fd1d86e8d10e88b871b6ab2500372a9dc48358f8c2d386"},
+    {file = "garminconnect-0.3.5-py3-none-any.whl", hash = "sha256:7a34c408ab4b94a69f67baeda96e8c8aef674447389bbb39beea0e5e49c2a29d"},
+    {file = "garminconnect-0.3.5.tar.gz", hash = "sha256:b4de13fa5e6c581348cbd8110afb9095dc68273d6cfb1284ed13cae7df0f6b02"},
 ]
 
 [package.dependencies]
@@ -337,18 +337,19 @@ dev = ["ipdb", "ipykernel", "ipython", "matplotlib", "pandas"]
 example = ["readchar"]
 linting = ["black[jupyter]", "codespell", "isort", "mypy", "pre-commit", "ruff", "types-requests"]
 testing = ["coverage", "pytest", "pytest-vcr (>=1.0.2)", "vcrpy (>=7.0.0)"]
+typed = ["pydantic (>=2.0.0)"]
 workout = ["pydantic (>=2.0.0)"]
 
 [[package]]
 name = "idna"
-version = "3.13"
+version = "3.18"
 description = "Internationalized Domain Names in Applications (IDNA)"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "idna-3.13-py3-none-any.whl", hash = "sha256:892ea0cde124a99ce773decba204c5552b69c3c67ffd5f232eb7696135bc8bb3"},
-    {file = "idna-3.13.tar.gz", hash = "sha256:585ea8fe5d69b9181ec1afba340451fba6ba764af97026f92a91d4eef164a242"},
+    {file = "idna-3.18-py3-none-any.whl", hash = "sha256:7f952cbe720b688055e3f87de14f5c3e5fdaa8bc3928985c4077ca689de849a2"},
+    {file = "idna-3.18.tar.gz", hash = "sha256:ffb385a7e039654cef1ab9ef32c6fafe283c0c0467bba1d9029738ce4a14a848"},
 ]
 
 [package.extras]
@@ -640,15 +641,30 @@ pygments = ">=2.7.2"
 dev = ["argcomplete", "attrs (>=19.2)", "hypothesis (>=3.56)", "mock", "requests", "setuptools", "xmlschema"]
 
 [[package]]
+name = "python-dotenv"
+version = "1.2.2"
+description = "Read key-value pairs from a .env file and set them as environment variables"
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+files = [
+    {file = "python_dotenv-1.2.2-py3-none-any.whl", hash = "sha256:1d8214789a24de455a8b8bd8ae6fe3c6b69a5e3d64aa8a8e5d68e694bbcb285a"},
+    {file = "python_dotenv-1.2.2.tar.gz", hash = "sha256:2c371a91fbd7ba082c2c1dc1f8bf89ca22564a087c2c287cd9b662adde799cf3"},
+]
+
+[package.extras]
+cli = ["click (>=5.0)"]
+
+[[package]]
 name = "requests"
-version = "2.33.1"
+version = "2.34.2"
 description = "Python HTTP for Humans."
 optional = false
 python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "requests-2.33.1-py3-none-any.whl", hash = "sha256:4e6d1ef462f3626a1f0a0a9c42dd93c63bad33f9f1c1937509b8c5c8718ab56a"},
-    {file = "requests-2.33.1.tar.gz", hash = "sha256:18817f8c57c6263968bc123d237e3b8b08ac046f5456bd1e307ee8f4250d3517"},
+    {file = "requests-2.34.2-py3-none-any.whl", hash = "sha256:2a0d60c172f83ac6ab31e4554906c0f3b3588d37b5cb939b1c061f4907e278e0"},
+    {file = "requests-2.34.2.tar.gz", hash = "sha256:f288924cae4e29463698d6d60bc6a4da69c89185ad1e0bcc4104f584e960b9ed"},
 ]
 
 [package.dependencies]
@@ -709,14 +725,14 @@ typing-extensions = ">=4.12.0"
 
 [[package]]
 name = "ua-generator"
-version = "2.1.0"
+version = "2.1.1"
 description = "A random user-agent generator"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "ua_generator-2.1.0-py3-none-any.whl", hash = "sha256:c23ddba84c1cf46bf12d7f44ad0a5a247760601c776f1cc0be02e2570626ebc3"},
-    {file = "ua_generator-2.1.0.tar.gz", hash = "sha256:34a68f9860965ad710ae91c1ae91c33a121f505f298efb1652bdc19e01b7d79d"},
+    {file = "ua_generator-2.1.1-py3-none-any.whl", hash = "sha256:d8fd6e39e44dc057dd232d5f808fe0f61dab4a3163903cfe24446777ecdd2ec4"},
+    {file = "ua_generator-2.1.1.tar.gz", hash = "sha256:c01984c1055da4900c8a1f4c419f229fa454caf42d8642267aec1904110d1c8d"},
 ]
 
 [[package]]
@@ -743,4 +759,4 @@ dev = ["pytest"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12, <3.15"
-content-hash = "8564e26cd34ec3b4d072cb7485c015cef1da0c066b65cb0f9b2da8ea54471814"
+content-hash = "7dfa968595da0442ec1e542a19e054f8b47a988a0ac11b45ba1f0d3fd774177c"

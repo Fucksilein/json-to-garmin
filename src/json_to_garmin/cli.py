@@ -97,6 +97,9 @@ def _make_client():
 
 
 def main(argv: list[str] | None = None) -> int:
+    from dotenv import load_dotenv
+
+    load_dotenv()
     p = argparse.ArgumentParser(
         prog="json-to-garmin",
         description="Generic JSON workout schema → Garmin Connect.",
